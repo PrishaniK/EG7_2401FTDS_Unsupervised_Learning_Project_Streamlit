@@ -86,13 +86,13 @@ elif page == "Insights":
                                    ["Top 10 Most Rated Animes", "Top 10 Least Rated Animes", "Top 10 Anime Genre Distribution", "Distribution of User Ratings"])
     
     if insights_option == "Top 10 Most Rated Animes":
-        st.image(load_image("images/top_10_most_rated_animes.png"), width=800)
+        st.image(load_image("images/top_10_most_rated_animes.png"), use_column_width=True)
     elif insights_option == "Top 10 Least Rated Animes":
-        st.image(load_image("images/top_10_least_rated_animes.png"), width=800)
+        st.image(load_image("images/top_10_least_rated_animes.png"), use_column_width=True)
     elif insights_option == "Top 10 Anime Genre Distribution":
-        st.image(load_image("images/top_10_anime_genre_distribution.png"), width=800)
+        st.image(load_image("images/top_10_anime_genre_distribution.png"), use_column_width=True)
     elif insights_option == "Distribution of User Ratings":
-        st.image(load_image("images/distribution_of_user_ratings.png"), width=800)
+        st.image(load_image("images/distribution_of_user_ratings.png"), use_column_width=True)
 
 # Anime Archive page
 elif page == "Anime Archive":
