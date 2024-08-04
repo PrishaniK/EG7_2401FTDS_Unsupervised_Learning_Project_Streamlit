@@ -26,7 +26,7 @@ else:
 
 # Sidebar navigation
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Recommend Anime", "Overview", "Anime Archive", "About Us"])
+page = st.sidebar.radio("Go to", ["Recommend Anime", "Overview", "Insights", "Anime Archive", "About Us"])
 
 # Recommend Anime page (now the first page)
 if page == "Recommend Anime":
@@ -61,7 +61,7 @@ if page == "Recommend Anime":
         if st.button("Get Collaborative-Based Recommendations"):
             st.success("Collaborative-Based Recommendations would be displayed here based on your user profile!")
 
-# Overview page (formerly Home page)
+# Overview page
 elif page == "Overview":
     st.title("Welcome to our Anime Recommender App")
     st.info("**Proudly brought to you by AnimeXplore!**")
@@ -77,6 +77,22 @@ Anime, a unique form of animation originating from Japan, has a rich history tha
 The impact of anime on global pop culture is undeniable. It has not only entertained millions but also influenced fashion, music, and even technology. Conventions dedicated to anime, such as Anime Expo and Comic-Con, draw massive crowds, celebrating the community and creativity that anime fosters. Streaming platforms now host extensive libraries of anime, making it more accessible than ever before. The stories told through anime resonate deeply with fans, offering both escapism and reflection on real-world issues.
     """)
 
+# Insights page
+elif page == "Insights":
+    st.title("Insights")
+    st.info("**Explore Anime Insights and Statistics**")
+    
+    insights_option = st.selectbox("Choose an insight to view:", 
+                                   ["Top 10 Most Rated Animes", "Top 10 Least Rated Animes", "Top 10 Anime Genre Distribution", "Distribution of User Ratings"])
+    
+    if insights_option == "Top 10 Most Rated Animes":
+        st.image(load_image("images/top_10_most_rated_animes.jpg"), width=1000)
+    elif insights_option == "Top 10 Least Rated Animes":
+        st.image(load_image("images/top_10_least_rated_animes.jpg"), width=1000)
+    elif insights_option == "Top 10 Anime Genre Distribution":
+        st.image(load_image("images/top_10_anime_genre_distribution.jpg"), width=1000)
+    elif insights_option == "Distribution of User Ratings":
+        st.image(load_image("images/distribution_of_user_ratings.jpg"), width=1000)
 
 # Anime Archive page
 elif page == "Anime Archive":
