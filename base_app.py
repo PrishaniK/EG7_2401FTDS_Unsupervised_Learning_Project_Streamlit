@@ -1,6 +1,9 @@
+import numpy as np
 import streamlit as st
-from PIL import Image
 import pandas as pd
+import pickle
+from surprise import Reader, Dataset
+from PIL import Image
 
 # Set the title and layout of the app
 st.set_page_config(
@@ -24,9 +27,45 @@ else:
     st.error("The required columns ('name' and 'genre') are not present in the dataset.")
     st.stop()
 
+# Load the pickled SVD model
+with open('svd_model.pkl', 'rb') as f:
+    svd_model = pickle.load(f)
+
+# Load the user-item interaction data
+ratings = pd.read_csv('train.csv')
+
 # Sidebar navigation
 st.sidebar.title("Navigation")
 page = st.sidebar.radio("Go to", ["Recommend Anime", "Overview", "Insights", "Anime Archive", "About Us"])
+
+# Function to get collaborative recommendations
+def get_collaborative_recommendations(user_id, num_recommendations=10):
+    # Prepare the data for Surprise
+    reader = Reader(rating_scale=(1, 10))
+    data = Dataset.load_from_df(ratings[['user_id', 'anime_id', 'rating']], reader)
+    trainset = data.build_full_trainset()
+    
+    # Predict ratings for all unseen items for the user
+    all_anime_ids = anime_data['anime_id'].unique()
+    user_anime_ids = ratings[ratings['user_id'] == user_id]['anime_id']
+    unseen_anime_ids = [anime_id for anime_id in all_anime_ids if anime_id not in user_anime_ids]
+    
+    predictions = []
+    for anime_id in unseen_anime_ids:
+        prediction = svd_model.predict(user_id, anime_id)
+        predictions.append((anime_id, prediction.est))
+    
+    # Sort predictions by estimated rating in descending order
+    predictions.sort(key=lambda x: x[1], reverse=True)
+    
+    # Get the top N recommendations
+    top_recommendations = predictions[:num_recommendations]
+    
+    # Get the anime details for the top recommendations
+    recommended_anime = anime_data[anime_data['anime_id'].isin([rec[0] for rec in top_recommendations])]
+    recommended_anime['predicted_rating'] = [rec[1] for rec in top_recommendations]
+    
+    return recommended_anime
 
 # Recommend Anime page (now the first page)
 if page == "Recommend Anime":
@@ -36,7 +75,6 @@ if page == "Recommend Anime":
     st.title("Anime Recommender")
     st.subheader("Discover Your Next Anime Adventure with **AnimeXplore!**")
     st.image(load_image("images/Home_anime_collage.jpg"), width=1000)
-    
 
     st.markdown("### Choose your recommendation method:")
     rec_method = st.selectbox("Recommendation Method", ["Content-Based Filtering", "Collaborative-Based Filtering"])
@@ -59,7 +97,22 @@ if page == "Recommend Anime":
         user_id = st.text_input("Enter your user ID:")
         
         if st.button("Get Collaborative-Based Recommendations"):
-            st.success("Collaborative-Based Recommendations would be displayed here based on your user profile!")
+            if user_id:
+                try:
+                    user_id = int(user_id)
+                    recommendations = get_collaborative_recommendations(user_id)
+                    if not recommendations.empty:
+                        st.subheader("Recommended Animes")
+                        for idx, row in recommendations.iterrows():
+                            st.markdown(f"**{row['name']}**")
+                            st.write(f"Genres: {row['genre']}")
+                            st.write(f"Predicted Rating: {row['predicted_rating']:.2f}/10")
+                    else:
+                        st.write("No recommendations found for the given user ID.")
+                except ValueError:
+                    st.error("Invalid user ID. Please enter a numeric user ID.")
+            else:
+                st.error("Please enter a user ID to get recommendations.")
 
 # Overview page
 elif page == "Overview":
@@ -76,6 +129,15 @@ Anime, a unique form of animation originating from Japan, has a rich history tha
 
 The impact of anime on global pop culture is undeniable. It has not only entertained millions but also influenced fashion, music, and even technology. Conventions dedicated to anime, such as Anime Expo and Comic-Con, draw massive crowds, celebrating the community and creativity that anime fosters. Streaming platforms now host extensive libraries of anime, making it more accessible than ever before. The stories told through anime resonate deeply with fans, offering both escapism and reflection on real-world issues.
     """)
+
+
+    st.subheader("Our Objective")
+    st.markdown("""
+    We are aimed at developing a collaborative and content-based recommender system that accurately predicts user ratings for unseen anime titles, thereby enhancing the anime discovery experience by delivering personalized, relevant and exciting recommendations
+    """)
+    
+    # Add GIF
+    st.image(load_image("images/anime_fun.gif"), width=1000)
 
 # Insights page
 elif page == "Insights":
@@ -114,7 +176,7 @@ elif page == "Anime Archive":
         else:
             st.write("No anime found matching your search criteria.")
 
-# About page
+# About Us page
 elif page == "About Us":
     st.title("About Us")
     st.subheader("Learn more about this app and its creators.")
