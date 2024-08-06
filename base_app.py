@@ -120,7 +120,7 @@ if page == "Recommend Anime":
 
     if rec_method == "Content-Based Filtering":
         st.info("**Tell us what you like, and we'll suggest something you'll love!**")
-        search_term = st.text_input("Enter the anime ID or name you like:", key="search_term")
+        search_term = st.text_input("Enter the anime name you like:", key="search_term")
 
         if st.button("Get Content-Based Recommendations"):
             if search_term:
